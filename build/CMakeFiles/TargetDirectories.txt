@@ -1,0 +1,3 @@
+/home/bartu/Documents/dzo_vsc/build/CMakeFiles/edit_cache.dir
+/home/bartu/Documents/dzo_vsc/build/CMakeFiles/rebuild_cache.dir
+/home/bartu/Documents/dzo_vsc/build/CMakeFiles/dzo.dir
