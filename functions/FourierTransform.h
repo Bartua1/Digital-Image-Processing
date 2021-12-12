@@ -2,6 +2,9 @@
 #define FourierTransform_H
 
 #include <opencv2/opencv.hpp>
+#include "swapQ.h"
+#include <stdio.h>
+
 double * fourierTransform(cv::Mat image, int m, int n, int k, int l, double * arr){
     double r = cos(2*2*acos(0.0)*((m*k/image.rows)+(n*l/image.cols)))/sqrt(image.cols*image.rows);
     double i = sin(-2*2*acos(0.0)*((m*k/image.rows)+(n*l/image.cols)))/sqrt(image.cols*image.rows);
@@ -38,23 +41,6 @@ double fourierAt(cv::Mat image, int k, int l,int type){
 }
 
 */
-
-cv::Mat swapQ(cv::Mat image){
-    int cx = image.cols/2;
-    int cy = image.rows/2;
-    cv::Mat q0(image, cv::Rect(0, 0, cx, cy));   // Top-Left
-    cv::Mat q1(image, cv::Rect(cx, 0, cx, cy));  // Top-Right
-    cv::Mat q2(image, cv::Rect(0, cy, cx, cy));  // Bottom-Left
-    cv::Mat q3(image, cv::Rect(cx, cy, cx, cy)); // Bottom-Right
-    cv::Mat tmp;                           // swap quadrants (Top-Left with Bottom-Right)
-    q0.copyTo(tmp);
-    q3.copyTo(q0);
-    tmp.copyTo(q3);
-    q1.copyTo(tmp);                        // swap quadrant (Top-Right with Bottom-Left)
-    q2.copyTo(q1);
-    tmp.copyTo(q2);
-    return image;
-}
 
 /*
 
@@ -102,8 +88,15 @@ void DiscreteFourierTransform(){
 
 */
 
-void DiscreteFourierTransform(){
-    cv::Mat I = cv::imread("/home/bartu/Documents/dzo_vsc/images/lena64.png", cv::IMREAD_GRAYSCALE);
+cv::Mat InverseFourierTransform(cv::Mat complexI){
+    cv::Mat inverseTransform;
+    cv::dft(complexI, inverseTransform, cv::DFT_INVERSE|cv::DFT_REAL_OUTPUT);
+    normalize(inverseTransform, inverseTransform, 0, 1, cv::NORM_MINMAX);
+    return inverseTransform;
+}
+
+cv::Mat * DiscreteFourierTransform(std::string file){
+    cv::Mat I = cv::imread(file, cv::IMREAD_GRAYSCALE);
     cv::Mat padded;                            //expand input image to optimal size
     int m = cv::getOptimalDFTSize( I.rows );
     int n = cv::getOptimalDFTSize( I.cols ); // on the border add zero values
@@ -118,6 +111,8 @@ void DiscreteFourierTransform(){
     // compute the magnitude and switch to logarithmic scale
     // => log(1 + sqrt(Re(DFT(I))^2 + Im(DFT(I))^2))
     split(complexI, planes);                   // planes[0] = Re(DFT(I), planes[1] = Im(DFT(I))
+    cv::Mat Re = planes[0];
+    cv::Mat Im = planes[1];
     cv::Mat magI;
     cv::Mat phase;
     cv::cartToPolar(planes[0], planes[1], magI, phase);// planes[0] = magnitude
@@ -127,50 +122,32 @@ void DiscreteFourierTransform(){
 
     // crop the spectrum, if it has an odd number of rows or columns
     magI = magI(cv::Rect(0, 0, magI.cols & -2, magI.rows & -2));
-
-    // rearrange the quadrants of Fourier image  so that the origin is at the image center
-    int cx = magI.cols/2;
-    int cy = magI.rows/2;
-
-    cv::Mat q0(magI, cv::Rect(0, 0, cx, cy));   // Top-Left - Create a ROI per quadrant
-    cv::Mat q1(magI, cv::Rect(cx, 0, cx, cy));  // Top-Right
-    cv::Mat q2(magI, cv::Rect(0, cy, cx, cy));  // Bottom-Left
-    cv::Mat q3(magI, cv::Rect(cx, cy, cx, cy)); // Bottom-Right
-
     swapQ(magI);
 
     normalize(magI, magI, 0, 1, cv::NORM_MINMAX); // Transform the matrix with float values into a
                                             // viewable image form (float between values 0 and 1).
 
     normalize(phase, phase, 0, 1, cv::NORM_MINMAX);
-    cv::namedWindow("Power",cv::WINDOW_NORMAL);
-    cv::imshow("Power", magI);
-    cv::namedWindow("Phase",cv::WINDOW_NORMAL);
-    cv::imshow("Phase", phase);
+    // DiscreteFourierTransform = [0=originalPhoto,1=power,2=phase]
+    static cv::Mat DiscreteFourierTransform[6] = {I, magI, phase, complexI, Re, Im};
+    return DiscreteFourierTransform;
 }
 
-void PrintFourier(){
-    cv::Mat src_8uc3_img = cv::imread("/home/bartu/Documents/dzo_vsc/images/lena64.png", cv::IMREAD_COLOR); // load color image from file system to Mat variable, this will be loaded using 8 bits (uchar)
+void PrintFourier(std::string file){
 
-    if (src_8uc3_img.empty()) {
-        printf("Unable to read input file (%s, %d).", __FILE__, __LINE__);
-    }
-
-    cv::Mat gray_8uc1_img; // declare variable to hold grayscale version of img variable, gray levels wil be represented using 8 bits (uchar)
-    cv::Mat gray_32fc1_img; // declare variable to hold grayscale version of img variable, gray levels wil be represented using 32 bits (float)
-
-    cv::cvtColor(src_8uc3_img, gray_8uc1_img, cv::COLOR_BGR2GRAY); // convert input color image to grayscale one, CV_BGR2GRAY specifies direction of conversion
-    gray_8uc1_img.convertTo(gray_32fc1_img, CV_32FC1, 1.0/255.0); // convert grayscale image from 8 bits to 32 bits, resulting values will be in the interval 0.0 - 1.0
-
-    /* Discrete Fourier Transform (Exercise 4) */
+    // Discrete Fourier Transform
+    cv::Mat *fourier = DiscreteFourierTransform(file);
+    // fourier = [0=originalPhoto,1=power,2=phase]
     cv::namedWindow("Photo",cv::WINDOW_NORMAL);
-    cv::imshow("Photo", gray_32fc1_img);
-    DiscreteFourierTransform();
-    /*
-    cv::Mat phase = DiscreteFourierTransform(gray_32fc1_img);
+    cv::imshow("Photo", fourier[0]);
+    cv::namedWindow("Power",cv::WINDOW_NORMAL);
+    cv::imshow("Power", fourier[1]);
     cv::namedWindow("Phase",cv::WINDOW_NORMAL);
-    cv::imshow("Phase", phase);
-    */
+    cv::imshow("Phase", fourier[2]);
+    // Inverse Discrete Fourier Transform
+    cv::Mat ifourier = InverseFourierTransform(fourier[3]);
+    cv::namedWindow("Photo2",cv::WINDOW_NORMAL);
+    cv::imshow("Photo2", ifourier);
 }
 
 #endif

@@ -9,12 +9,30 @@
 /home/bartu/Documents/dzo_vsc/functions/FourierTransform.h
 opencv2/opencv.hpp
 -
+swapQ.h
+/home/bartu/Documents/dzo_vsc/functions/swapQ.h
+stdio.h
+-
+
+/home/bartu/Documents/dzo_vsc/functions/NoiseRemoval.h
+opencv2/opencv.hpp
+-
+swapQ.h
+/home/bartu/Documents/dzo_vsc/functions/swapQ.h
+FourierTransform.h
+/home/bartu/Documents/dzo_vsc/functions/FourierTransform.h
+stdio.h
+-
 
 /home/bartu/Documents/dzo_vsc/functions/anisotropic.h
 opencv2/opencv.hpp
 -
 
 /home/bartu/Documents/dzo_vsc/functions/convolution.h
+opencv2/opencv.hpp
+-
+
+/home/bartu/Documents/dzo_vsc/functions/swapQ.h
 opencv2/opencv.hpp
 -
 
@@ -31,6 +49,8 @@ functions/anisotropic.h
 /home/bartu/Documents/dzo_vsc/functions/anisotropic.h
 functions/FourierTransform.h
 /home/bartu/Documents/dzo_vsc/functions/FourierTransform.h
+functions/NoiseRemoval.h
+/home/bartu/Documents/dzo_vsc/functions/NoiseRemoval.h
 
 /usr/local/include/opencv4/opencv2/calib3d.hpp
 opencv2/core.hpp

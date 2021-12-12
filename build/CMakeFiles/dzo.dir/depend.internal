@@ -3,8 +3,10 @@
 
 CMakeFiles/dzo.dir/main.cpp.o
  /home/bartu/Documents/dzo_vsc/functions/FourierTransform.h
+ /home/bartu/Documents/dzo_vsc/functions/NoiseRemoval.h
  /home/bartu/Documents/dzo_vsc/functions/anisotropic.h
  /home/bartu/Documents/dzo_vsc/functions/convolution.h
+ /home/bartu/Documents/dzo_vsc/functions/swapQ.h
  /home/bartu/Documents/dzo_vsc/main.cpp
  /usr/local/include/opencv4/opencv2/calib3d.hpp
  /usr/local/include/opencv4/opencv2/core.hpp

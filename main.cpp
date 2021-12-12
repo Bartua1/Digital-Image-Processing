@@ -4,10 +4,11 @@
 #include "functions/convolution.h"
 #include "functions/anisotropic.h"
 #include "functions/FourierTransform.h"
+#include "functions/NoiseRemoval.h"
 
 int main()
 {
-    
+
     /* convolution Filter (Exercise 2) */
     //printConvolution();
 
@@ -15,7 +16,11 @@ int main()
     //printAnisotropic();
 
     /* Fourier Transform (Exercise 4) */
-    PrintFourier();
+    //PrintFourier("/home/bartu/Documents/dzo_vsc/images/lena64.png");
+    
+    /* Frecuency Filter (Filter 5) */
+    PrintFilter("/home/bartu/Documents/dzo_vsc/images/lena64_noise.png");
+    
     cv::waitKey( 0 ); // wait until keypressed
     
     return 0;
